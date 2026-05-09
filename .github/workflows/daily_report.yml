@@ -1,0 +1,104 @@
+name: Space Daily Tech — Daily Briefing
+
+on:
+  schedule:
+    # Trigger every day at 07:00 UTC
+    - cron: '0 7 * * *'
+  # Allows manual triggering from the "Actions" tab on GitHub
+  workflow_dispatch:
+
+permissions:
+  contents: write   # Necessary for git push from the Action
+
+jobs:
+  generate-briefing:
+    name: Generate and deploy the daily briefing
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------------------------------
+      # Full Checkout (history necessary for a clean push)
+      # ----------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ----------------------------------------------------------------
+      # Install Python + uv
+      # ----------------------------------------------------------------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ----------------------------------------------------------------
+      # Install dependencies via uv
+      # ----------------------------------------------------------------
+      - name: Install dependencies
+        run: uv sync
+
+      # ----------------------------------------------------------------
+      # Run main pipeline
+      # ----------------------------------------------------------------
+      - name: Generate briefing (RSS + Scraping → Gemini → TTS → JSON)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TTS_VOICE_NAME: ${{ vars.TTS_VOICE_NAME || 'Charon' }}
+          MAX_ARTICLES: ${{ vars.MAX_ARTICLES || '10' }}
+          RSS_FEED_URL: ${{ vars.RSS_FEED_URL || '' }}
+          TOPIC_NAME: ${{ vars.TOPIC_NAME || 'Space Tech' }}
+        run: uv run python scripts/main.py
+
+      # ----------------------------------------------------------------
+      # Commit and push generated files
+      # ----------------------------------------------------------------
+      - name: Commit and push generated files
+        id: git_push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add only the files managed by the pipeline
+          git add data.json audio/latest_report.wav
+
+          # Only create a commit if changes are detected
+          if git diff --cached --quiet; then
+            echo "No changes detected — nothing to commit."
+            echo "pushed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "chore(briefing): automatic update on $(date -u '+%Y-%m-%d') [skip ci]"
+            git push
+            echo "✅ Briefing updated and pushed to the main branch."
+            echo "pushed=true" >> $GITHUB_OUTPUT
+          fi
+
+      # ----------------------------------------------------------------
+      # Send Alert Email on successful update
+      # ----------------------------------------------------------------
+      - name: Send alert email on success
+        if: steps.git_push.outputs.pushed == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER || 'smtp.gmail.com' }}
+          server_port: ${{ secrets.MAIL_PORT || 465 }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🚀 Space Daily Tech Briefing Ready!"
+          to: ${{ secrets.MAIL_TO }}
+          from: "Space Daily Tech <${{ secrets.MAIL_USERNAME }}>"
+          body: |
+            Hello,
+
+            A brand new Space Daily Tech briefing has been successfully generated and deployed!
+            
+            You can now listen to the audio report and check the summarized articles here:
+            https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+
+            Have a stellar day!
+            -- Space Daily Tech Bot

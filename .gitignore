@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environment variables
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Audio (optional: ignore if you don't want to track local generations)
+# Note: GitHub Actions won't commit in case the audio is ignored
+#audio/latest_report.wav
+
+# IDEs
+.vscode/
+.idea/
+
+# Tests
+get_started/

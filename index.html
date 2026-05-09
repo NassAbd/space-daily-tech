@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Space Daily Tech — Your daily morning space tech briefing, synthesized and read aloud by advanced Gemini AI." />
+  <title>Space Daily Tech — Daily Space News Briefing</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ================================================================
+       Design System Tokens
+    ================================================================ */
+    :root {
+      --bg-base:        #060814;
+      --bg-card:        #0d1127;
+      --bg-glass:       rgba(255,255,255,0.03);
+      --border:         rgba(99,102,241,0.15);
+      --border-hover:   rgba(99,102,241,0.3);
+      --accent:         #6366f1;
+      --accent-glow:    rgba(99,102,241,0.35);
+      --accent-2:       #ec4899;
+      --text-primary:   #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted:     #475569;
+      --success:        #10b981;
+      --radius-lg:      16px;
+      --radius-xl:      24px;
+      --radius-full:    9999px;
+      --shadow-glow:    0 0 60px rgba(99,102,241,0.20);
+      --transition:     0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ================================================================
+       Reset & Base
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       Animated Background
+    ================================================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(236,72,153,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6,8,20,1) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ================================================================
+       Layout
+    ================================================================ */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ================================================================
+       Header
+    ================================================================ */
+    header {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      padding: 0.4rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .logo-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 50%, var(--accent-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+
+    /* ================================================================
+       Status Bar
+    ================================================================ */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(12px);
+      font-size: 0.85rem;
+    }
+
+    .status-date {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-articles {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .articles-count {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ================================================================
+       Player Card
+    ================================================================ */
+    .player-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-glow), 0 4px 40px rgba(0,0,0,0.4);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .player-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 0 80px rgba(124,111,255,0.2), 0 4px 40px rgba(0,0,0,0.4);
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .album-art {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .player-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .player-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.25rem;
+    }
+
+    .player-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Native audio player styled */
+    .audio-wrapper {
+      position: relative;
+    }
+
+    audio#player {
+      width: 100%;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      outline: none;
+      filter: invert(1) hue-rotate(210deg) brightness(0.85);
+      opacity: 0.9;
+    }
+
+    .audio-disclaimer {
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ================================================================
+       Briefing Card
+    ================================================================ */
+    .briefing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: border-color var(--transition);
+    }
+
+    .briefing-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+
+    .section-label:hover {
+      color: var(--text-secondary);
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 0.5rem;
+    }
+
+    .toggle-icon {
+      font-size: 0.6rem;
+      transition: transform var(--transition);
+      color: var(--text-muted);
+    }
+
+    .briefing-card.collapsed .toggle-icon {
+      transform: rotate(-90deg);
+    }
+
+    .briefing-content {
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    .briefing-card.collapsed .briefing-content {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    .briefing-card.collapsed .section-label {
+      margin-bottom: 0;
+    }
+
+    .briefing-text {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ================================================================
+       Loading State
+    ================================================================ */
+    .loading-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* ================================================================
+       Error State
+    ================================================================ */
+    .error-card {
+      background: rgba(255,59,48,0.06);
+      border: 1px solid rgba(255,59,48,0.2);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .error-card.visible { display: block; }
+
+    .error-title {
+      font-weight: 600;
+      color: #ff6b6b;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .error-msg {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ================================================================
+       Footer
+    ================================================================ */
+    footer {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity var(--transition);
+    }
+
+    footer a:hover { opacity: 0.7; }
+
+    .footer-powered {
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    /* ================================================================
+       Responsive
+    ================================================================ */
+    @media (max-width: 480px) {
+      .wrapper { padding: 1.5rem 1rem 3rem; }
+      .player-card, .briefing-card { padding: 1.5rem; }
+      .player-header { gap: 1rem; }
+      .album-art { width: 52px; height: 52px; font-size: 1.4rem; }
+    }
+
+    /* ================================================================
+       Fade-in animation
+    ================================================================ */
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <!-- Header -->
+    <header>
+      <div class="logo-badge">
+        <span class="dot" aria-hidden="true"></span>
+        Automated Space Intelligence 🚀
+      </div>
+      <h1>Space Daily Tech</h1>
+      <p class="tagline">Your daily cosmic briefing, generated every morning at 07:00 UTC</p>
+    </header>
+
+    <!-- Loading state (initial) -->
+    <div id="loading-card" class="loading-card">
+      <div class="spinner" role="status" aria-label="Loading..."></div>
+      <p class="loading-text">Loading today's cosmic briefing…</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="error-card" class="error-card" role="alert" aria-live="polite">
+      <p class="error-title">⚠️ Failed to load briefing</p>
+      <p class="error-msg" id="error-msg">An error occurred. Please try again later.</p>
+    </div>
+
+    <!-- Status bar -->
+    <div id="status-bar" class="status-bar" style="display:none;">
+      <div class="status-date">
+        <span aria-hidden="true">📅</span>
+        <span id="status-date-text">—</span>
+      </div>
+      <div class="status-articles">
+        <span class="articles-count" id="article-count">0</span> article(s) summarized
+      </div>
+    </div>
+
+    <!-- Player Card -->
+    <div id="player-card" class="player-card" style="display:none;">
+      <div class="player-header">
+        <div class="album-art" aria-hidden="true">🚀</div>
+        <div class="player-meta">
+          <div class="player-title" id="player-title">Space Briefing</div>
+          <div class="player-subtitle">Space Daily Tech · Gemini TTS</div>
+        </div>
+      </div>
+      <div class="audio-wrapper">
+        <audio id="player" controls preload="metadata" aria-label="Audio player for today's briefing">
+          <source id="audio-source" src="audio/latest_report.wav" type="audio/wav" />
+          Your browser does not support audio playback.
+        </audio>
+      </div>
+      <p class="audio-disclaimer">Audio generated by AI — Gemini 2.5 Flash TTS</p>
+    </div>
+
+    <!-- Briefing Text Card -->
+    <div id="briefing-card" class="briefing-card collapsed" style="display:none;">
+      <button id="briefing-toggle" class="section-label" aria-expanded="false" aria-controls="briefing-content">
+        Briefing Script Transcript
+        <span class="toggle-icon" aria-hidden="true">▼</span>
+      </button>
+      <div id="briefing-content" class="briefing-content">
+        <p class="briefing-text" id="briefing-text">—</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>Sources: <a href="https://reves-d-espace.com/" target="_blank" rel="noopener">Rêves d'Espace</a> &middot; <a href="https://cnes.fr/" target="_blank" rel="noopener">CNES</a> &middot; Synthesis: Gemini 2.5 Flash</p>
+      <p class="footer-powered">
+        <span>Powered by</span>
+        <strong style="color: var(--accent);"><a href="https://github.com/NassAbd" target="_blank" rel="noopener">Abdallah Nassur</a></strong>
+        <span>· GitHub Actions &amp; GitHub Pages</span>
+      </p>
+    </footer>
+
+  </div>
+
+  <script>
+    // ================================================================
+    // Echo-Tech Daily — Frontend JS
+    // Chargement de data.json et mise à jour de l'interface
+    // ================================================================
+    (function () {
+      'use strict';
+
+      const $ = (id) => document.getElementById(id);
+
+      // Éléments DOM
+      const loadingCard  = $('loading-card');
+      const errorCard    = $('error-card');
+      const errorMsg     = $('error-msg');
+      const statusBar    = $('status-bar');
+      const playerCard   = $('player-card');
+      const briefingCard = $('briefing-card');
+      const briefingToggle = $('briefing-toggle');
+
+      /**
+       * Toggle the visibility of the briefing card content.
+       */
+      function toggleBriefing() {
+        const isCollapsed = briefingCard.classList.toggle('collapsed');
+        briefingToggle.setAttribute('aria-expanded', !isCollapsed);
+      }
+
+      briefingToggle.addEventListener('click', toggleBriefing);
+
+      /**
+       * Formats an ISO date into a readable English string.
+       * @param {string} isoDate
+       * @returns {string}
+       */
+      function formatDateEN(isoDate) {
+        try {
+          return new Intl.DateTimeFormat('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC',
+            timeZoneName: 'short',
+          }).format(new Date(isoDate));
+        } catch {
+          return isoDate;
+        }
+      }
+
+      /**
+       * Displays error state.
+       * @param {string} message
+       */
+      function showError(message) {
+        loadingCard.style.display = 'none';
+        errorMsg.textContent = message;
+        errorCard.classList.add('visible');
+      }
+
+      /**
+       * Populates interface with daily briefing data.
+       * @param {{ date: string, title: string, summary: string, article_count: number }} data
+       */
+      function renderReport(data) {
+        loadingCard.style.display = 'none';
+
+        // Status bar
+        $('status-date-text').textContent = formatDateEN(data.date);
+        $('article-count').textContent    = data.article_count ?? 0;
+        statusBar.style.display = '';
+        statusBar.classList.add('fade-in');
+
+        // Player
+        $('player-title').textContent = data.title || 'Space Briefing';
+        // Force audio reload even if source url didn't change
+        const audio    = $('player');
+        const source   = $('audio-source');
+        const cacheBuster = `?t=${Date.parse(data.date) || Date.now()}`;
+        source.src     = `audio/latest_report.wav${cacheBuster}`;
+        audio.load();
+        playerCard.style.display = '';
+        playerCard.classList.add('fade-in');
+
+        // Briefing Text
+        $('briefing-text').textContent = data.summary || '(No summary available)';
+        briefingCard.style.display = '';
+        briefingCard.classList.add('fade-in');
+      }
+
+      /**
+       * Fetches data.json and renders interface.
+       */
+      async function loadReport() {
+        try {
+          const url = `data.json?_=${Date.now()}`;
+          const resp = await fetch(url);
+
+          if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status} — ${resp.statusText}`);
+          }
+
+          const data = await resp.json();
+
+          if (!data.date || !data.title) {
+            throw new Error('Invalid data.json format.');
+          }
+
+          renderReport(data);
+        } catch (err) {
+          console.error('[Space Daily Tech] Error loading report:', err);
+          showError(
+            err instanceof Error
+              ? `${err.message} — Please verify that data.json is successfully generated at repository root.`
+              : 'Unknown error.'
+          );
+        }
+      }
+
+      // Start on page load
+      document.addEventListener('DOMContentLoaded', loadReport);
+    })();
+  </script>
+</body>
+</html>
