@@ -6,7 +6,7 @@
 
 > **Your daily morning space technology briefing**, automatically fetched, translated, synthesized in English, and read aloud by an advanced Gemini AI — every morning at 07:00 UTC.
 
-[🌐 Live Demo](https://NassAbd.github.io/space_dailytech/)
+[🌐 Live Demo](https://nassabd.github.io/space-daily-tech/)
 
 ---
 
@@ -40,8 +40,8 @@ GitHub Pages — index.html loads data.json and streams the cosmic podcast!
 ### Step 1 — Fork / Clone this repository
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/space_dailytech.git
-cd space_dailytech
+git clone https://github.com/<YOUR-USERNAME>/space-daily-tech.git
+cd space-daily-tech
 ```
 
 ### Step 2 — Configure Secrets in GitHub Actions
