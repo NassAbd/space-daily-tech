@@ -48,16 +48,24 @@
     }
 
     /* ================================================================
-       Animated Background
+       Static Cosmic Background
     ================================================================ */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background:
+      background-image:
+        radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 130px 80px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 160px 120px, #ffffff, rgba(0,0,0,0)),
         radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.15) 0%, transparent 60%),
         radial-gradient(ellipse 60% 50% at 80% 80%, rgba(236,72,153,0.08) 0%, transparent 55%),
         radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6,8,20,1) 0%, transparent 100%);
+      background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
+      background-size: 200px 200px, 250px 250px, 300px 300px, 150px 150px, 350px 350px, 200px 200px, 100% 100%, 100% 100%, 100% 100%;
       pointer-events: none;
       z-index: 0;
     }
