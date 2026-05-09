@@ -30,7 +30,13 @@ Gemini TTS — speech synthesis → audio/latest_report.wav
 data.json — stores date, title, summary, article count
                       │
                       ▼
-GitHub Pages — index.html loads data.json and streams the cosmic podcast!
+GitHub Pages — starts build & deployment sequence (triggered by commit push)
+                      │
+                      ▼
+[Wait Step] — workflow polls Pages build API until status is "built"
+                      │
+                      ▼
+[Email Alert] — dispatched with verified links to the updated website!
 ```
 
 ---

@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write   # Necessary for git push from the Action
+  pages: read       # Necessary to poll Pages build status
 
 jobs:
   generate-briefing:
@@ -77,6 +78,33 @@ jobs:
             echo "✅ Briefing updated and pushed to the main branch."
             echo "pushed=true" >> $GITHUB_OUTPUT
           fi
+
+      # ----------------------------------------------------------------
+      # Wait for GitHub Pages build to complete
+      # ----------------------------------------------------------------
+      - name: Wait for GitHub Pages build to complete
+        if: steps.git_push.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Waiting 15 seconds to allow GitHub Pages build to register..."
+          sleep 15
+
+          echo "Polling GitHub Pages build status..."
+          for i in {1..30}; do
+            STATUS=$(gh api repos/${{ github.repository }}/pages/builds/latest --jq '.status' 2>/dev/null || echo "queued")
+            echo "Current Pages build status (Attempt $i/30): $STATUS"
+            
+            if [ "$STATUS" = "built" ]; then
+              echo "✅ GitHub Pages site is fully built and deployed!"
+              break
+            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "error" ]; then
+              echo "❌ GitHub Pages build failed."
+              exit 1
+            fi
+            
+            sleep 15
+          done
 
       # ----------------------------------------------------------------
       # Send Alert Email on successful update
